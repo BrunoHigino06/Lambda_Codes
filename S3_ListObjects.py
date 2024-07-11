@@ -6,7 +6,7 @@ def lambda_handler(event, context):
     s3 = boto3.client('s3')
     bucket_name = 'media-ingest-temporary'
     current_date = datetime.now().strftime('%Y-%m-%d')
-    
+
     try:
         all_objects = []
         continuation_token = None
@@ -36,13 +36,25 @@ def lambda_handler(event, context):
             else:
                 break
 
+        # Include the total count at the beginning of the JSON data
+        output_data = {
+            'total_files': len(all_objects),
+            'files': all_objects
+        }
+
+        # Convert the output data to JSON with pretty-printing and save to S3
+        json_data = json.dumps(output_data, indent=4)  # Add indent parameter here
+        file_key = f"report/mp4_objects_{current_date}.json"
+
+        s3.put_object(Bucket=bucket_name, Key=file_key, Body=json_data)
+
         return {
             'statusCode': 200,
-            'body': json.dumps(all_objects)
+            'body': json.dumps(output_data, indent=4)  # Add indent parameter here
         }
 
     except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': str(e)}, indent=4)  # Add indent parameter here
         }
