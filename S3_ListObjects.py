@@ -1,3 +1,17 @@
+"""
+Lambda function to list .mp4 files uploaded to an S3 bucket on a specific date,
+generate a JSON report including file details and total count, and save the report
+to S3 under a specified folder.
+
+Script Workflow:
+1. Retrieves current date and initializes AWS S3 client.
+2. Lists objects in 'media-ingest-temporary' bucket filtered by .mp4 extension and current date.
+3. Collects details (Key, LastModified) of filtered objects.
+4. Constructs a JSON report including total count and file details.
+5. Saves the JSON report to 'report/mp4_objects_<current_date>.json' in the S3 bucket.
+6. Returns a JSON response with HTTP status code 200 if successful, including the JSON report.
+   Returns a JSON response with HTTP status code 500 in case of errors, including error details.
+"""
 import json
 import boto3
 from datetime import datetime
